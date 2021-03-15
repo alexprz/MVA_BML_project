@@ -58,7 +58,9 @@ class LinearModel(pl.LightningModule):
         x, y = val_batch
         x = x.view(x.size(0), -1)
         y_hat = self.forward(x)
-        loss = nn.CrossEntropyLoss()(y_hat, y)
+        pred = y_hat.data.max(1, keepdim=True)[1]
+        acc = pred.eq(y.data.view_as(pred)).sum()/y.size(0)
+        loss = 1 - acc
         self.log('val_loss', loss)
         return loss
 
