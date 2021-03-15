@@ -50,7 +50,7 @@ class LinearModel(pl.LightningModule):
         x, y = train_batch
         x = x.view(x.size(0), -1)
         y_hat = self.forward(x)
-        loss = nn.CrossEntropyLoss()(y_hat, y)
+        loss = nn.CrossEntropyLoss(reduction='mean')(y_hat, y)
         self.log('train_loss', loss)
         return loss
 
@@ -88,6 +88,7 @@ if __name__ == '__main__':
                                           filename='{epoch:02d}-{val_loss:.3f}',
                                           monitor='val_loss')
 
+    logger = TensorBoardLogger("tb_logs", name="{}_{}_{}_{}".format(args.nlayers,args.nplayers,args.sigw,args.sigb))
     trainer = pl.Trainer(max_epochs=args.epochs,
                          checkpoint_callback=checkpoint_callback)
     trainer.fit(model, train_loader, val_loader)
