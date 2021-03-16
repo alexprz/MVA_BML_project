@@ -9,6 +9,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 from torchvision.datasets import MNIST
+from pytorch_lightning.loggers import TensorBoardLogger
+import numpy as np
 
 
 class LinearModel(pl.LightningModule):
@@ -22,22 +24,28 @@ class LinearModel(pl.LightningModule):
             activation(),
             *[nn.Sequential(nn.Linear(n_per_layers, n_per_layers), activation()) for i in range(n_layers-2)],
             nn.Linear(n_per_layers, n_out),
-            nn.Softmax(),
+            #nn.Softmax(),
         )
         self.activation = activation
 
     def init_weights(self, sig_w=1, sig_b=1):
         for name, param in self.named_parameters():
             if name[-4:] == 'bias':
-                torch.nn.init.normal_(param, 0., sig_b**2)
+                if sig_b ==0:
+                    torch.nn.init.constant_(param,0)
+                else:
+                    torch.nn.init.normal_(param, 0., sig_b)
             else:
-                torch.nn.init.normal_(param, 0., sig_w**2)
+                if sig_w ==0:
+                    torch.nn.init.constant_(param,0)
+                else:
+                    torch.nn.init.normal_(param, 0., sig_w/(param.shape[1]**(1/2)))
 
     def forward(self, x):
         return self.layers(x)
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.parameters(), lr=1e-3)
+        return torch.optim.SGD(self.parameters(), lr=1e-4)
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
@@ -57,7 +65,7 @@ class LinearModel(pl.LightningModule):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='DLIP TP5')
+    parser = argparse.ArgumentParser(description='fig5B')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
     parser.add_argument('--bs', type=int, default=32, help='Batch size')
     parser.add_argument('--nlayers', type=int, default=10, help='Number of layers')
@@ -80,7 +88,11 @@ if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints/',
                                           filename='{epoch:02d}-{val_loss:.3f}',
                                           monitor='val_loss')
-
+    
+    logger = TensorBoardLogger("tb_logs", name="{}_{}_{}_{}".format(args.nlayers,args.nplayers,args.sigw,args.sigb))
+    
     trainer = pl.Trainer(max_epochs=args.epochs,
-                         checkpoint_callback=checkpoint_callback)
+                         checkpoint_callback=checkpoint_callback,
+                         logger=logger)
+    
     trainer.fit(model, train_loader, val_loader)
