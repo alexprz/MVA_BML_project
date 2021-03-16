@@ -22,8 +22,8 @@ class LinearModel(pl.LightningModule):
 
         self.layers = nn.Sequential(
             nn.Linear(n_in, n_per_layers),
-            activation(),
-            *[nn.Sequential(nn.Linear(n_per_layers, n_per_layers), activation()) for i in range(n_layers-2)],
+            activation,
+            *[nn.Sequential(nn.Linear(n_per_layers, n_per_layers), activation) for i in range(n_layers-2)],
             nn.Linear(n_per_layers, n_out),
             #nn.Softmax(),
         )
@@ -77,6 +77,8 @@ if __name__ == '__main__':
     parser.add_argument('--rs', type=int, default=0, help='Random state')
     parser.add_argument('--sigw', type=float, default=np.sqrt(2), help='Sigma weights')
     parser.add_argument('--sigb', type=float, default=0, help='Sigma bias')
+    parser.add_argument('--name', type=str, default='Exp', help='experiment name')
+    parser.add_argument('--ns', type=float, default='0', help='negative slope of Leaky ReLU')
     args = parser.parse_args()
 
     dataset = MNIST('MNIST/', train=True, download=True, transform=transforms.ToTensor())
@@ -84,16 +86,21 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(mnist_train, batch_size=args.bs)
     val_loader = DataLoader(mnist_val, batch_size=args.bs)
-
+    
+    if args.ns==0:
+        activation=nn.ReLU()
+    else:
+        activation=nn.LeakyReLU(negative_slope=args.ns)
+    
     model = LinearModel(n_in=28*28, n_out=10, n_layers=args.nlayers,
-                        n_per_layers=args.nplayers, activation=nn.ReLU)
-    model.init_weights(sig_w=args.sigw/args.nplayers, sig_b=args.sigb)
+                        n_per_layers=args.nplayers, activation=activation)
+    model.init_weights(sig_w=args.sigw, sig_b=args.sigb)
 
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints/',
                                           filename='{epoch:02d}-{val_loss:.3f}',
                                           monitor='val_loss')
 
-    logger = TensorBoardLogger("tb_logs", name="{}_{}_{}_{}".format(args.nlayers,args.nplayers,args.sigw,args.sigb))
+    logger = TensorBoardLogger("tb_logs", name="{}_{}_{}_{}_{}_{}".format(args.name,args.nlayers,args.nplayers,args.ns,args.sigw,args.sigb))
 
     trainer = pl.Trainer(max_epochs=args.epochs,
                          checkpoint_callback=checkpoint_callback,
