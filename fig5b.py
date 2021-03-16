@@ -1,4 +1,5 @@
 """Reproduce figure 5 of the paper."""
+import numpy as np
 import argparse
 import torch
 from torch import nn
@@ -47,11 +48,12 @@ class LinearModel(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(), lr=1e-4)
 
+
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
         x = x.view(x.size(0), -1)
         y_hat = self.forward(x)
-        loss = nn.CrossEntropyLoss()(y_hat, y)
+        loss = nn.CrossEntropyLoss(reduction='mean')(y_hat, y)
         self.log('train_loss', loss)
         return loss
 
@@ -59,7 +61,9 @@ class LinearModel(pl.LightningModule):
         x, y = val_batch
         x = x.view(x.size(0), -1)
         y_hat = self.forward(x)
-        loss = nn.CrossEntropyLoss()(y_hat, y)
+        pred = y_hat.data.max(1, keepdim=True)[1]
+        acc = pred.eq(y.data.view_as(pred)).sum()/y.size(0)
+        loss = 1 - acc
         self.log('val_loss', loss)
         return loss
 
@@ -71,8 +75,8 @@ if __name__ == '__main__':
     parser.add_argument('--nlayers', type=int, default=10, help='Number of layers')
     parser.add_argument('--nplayers', type=int, default=10, help='Number of neurons per layer')
     parser.add_argument('--rs', type=int, default=0, help='Random state')
-    parser.add_argument('--sigw', type=float, default=1, help='Sigma weights')
-    parser.add_argument('--sigb', type=float, default=1, help='Sigma bias')
+    parser.add_argument('--sigw', type=float, default=np.sqrt(2), help='Sigma weights')
+    parser.add_argument('--sigb', type=float, default=0, help='Sigma bias')
     args = parser.parse_args()
 
     dataset = MNIST('MNIST/', train=True, download=True, transform=transforms.ToTensor())
@@ -83,14 +87,14 @@ if __name__ == '__main__':
 
     model = LinearModel(n_in=28*28, n_out=10, n_layers=args.nlayers,
                         n_per_layers=args.nplayers, activation=nn.ReLU)
-    model.init_weights(sig_w=args.sigw, sig_b=args.sigb)
+    model.init_weights(sig_w=args.sigw/args.nplayers, sig_b=args.sigb)
 
     checkpoint_callback = ModelCheckpoint(dirpath='checkpoints/',
                                           filename='{epoch:02d}-{val_loss:.3f}',
                                           monitor='val_loss')
-    
+
     logger = TensorBoardLogger("tb_logs", name="{}_{}_{}_{}".format(args.nlayers,args.nplayers,args.sigw,args.sigb))
-    
+
     trainer = pl.Trainer(max_epochs=args.epochs,
                          checkpoint_callback=checkpoint_callback,
                          logger=logger)
