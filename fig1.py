@@ -36,7 +36,7 @@ if __name__ == '__main__':
         model = LinearModel(n_in=2, n_out=1, n_layers=args.nlayers,
                             n_per_layers=args.nplayers, activation=activation)
         model.init_weights(sig_w=args.sigw, sig_b=args.sigb)
-        model = model.cuda()
+        model = model
         model.eval()
         
         #plot
@@ -44,8 +44,8 @@ if __name__ == '__main__':
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     
         # Make data.
-        X = torch.arange(-5, 5, 0.2).cuda()
-        Y = torch.arange(-5, 5, 0.2).cuda()
+        X = torch.arange(-5, 5, 0.2)
+        Y = torch.arange(-5, 5, 0.2)
         X, Y = torch.meshgrid(X, Y)
         grid = torch.stack((X,Y),axis=2)
         grid = grid.view(-1,2)
