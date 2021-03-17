@@ -15,7 +15,7 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 def ssoftplus(x):
-    return np.log(1 + e^x) - np.log(2)
+    return np.log(1 + np.exp(x)) - np.log(2)
 
 def tanh(x):
     return np.tanh(x)

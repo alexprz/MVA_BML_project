@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--sigb', type=float, default=0, help='Sigma bias')
     parser.add_argument('--name', type=str, default='Exp', help='experiment name')
     parser.add_argument('--ns', type=float, default='0', help='negative slope of Leaky ReLU')
+    parser.add_argument('--act', type=str, default='relu', help='Which activation to use')
     args = parser.parse_args()
 
     dataset = MNIST('MNIST/', train=True, download=True, transform=transforms.ToTensor())
@@ -34,10 +35,14 @@ if __name__ == '__main__':
     train_loader = DataLoader(mnist_train, batch_size=args.bs)
     val_loader = DataLoader(mnist_val, batch_size=args.bs)
     
-    if args.ns==0:
-        activation=nn.ReLU()
+    if args.act == 'relu':
+        activation = nn.ReLU()
+    elif args.act == 'lrelu':
+        activation = nn.LeakyReLU(negative_slope=args.ns)
+    elif args.act == 'elu':
+        activation = nn.ELU()
     else:
-        activation=nn.LeakyReLU(negative_slope=args.ns)
+        raise ValueError(f'Unknown activation {args.act}')
     
     model = LinearModel(n_in=28*28, n_out=10, n_layers=args.nlayers,
                         n_per_layers=args.nplayers, activation=activation)
@@ -51,6 +56,6 @@ if __name__ == '__main__':
 
     trainer = pl.Trainer(max_epochs=args.epochs,
                          checkpoint_callback=checkpoint_callback,
-                         logger=logger)
+                         logger=logger,gpus='0')
     
     trainer.fit(model, train_loader, val_loader)
