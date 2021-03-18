@@ -36,10 +36,12 @@ if __name__ == '__main__':
     torch.manual_seed(args.rs)
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     
     dataset = MNIST('MNIST/', train=True, download=True, transform=transforms.ToTensor())
     mnist_train, mnist_val = random_split(dataset, [55000, 5000])
+    
+    #dataset.data = dataset.data.to(device)
+    #dataset.targets = dataset.targets.to(device)
 
     train_loader = DataLoader(mnist_train, batch_size=args.bs)
     val_loader = DataLoader(mnist_val, batch_size=args.bs)
@@ -87,10 +89,14 @@ if __name__ == '__main__':
             print('loss for sigma_b={}:'.format(sigb),loss)
             loss_liste.append(loss.cpu().numpy())
     
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(5,5))
     plt.plot(sigma_liste,loss_liste)
     plt.xlabel('sigma b')
     plt.ylabel('validation loss after 10 epochs')
-    plt.savefig("figs/{}_{}_{}".format(args.act,args.nlayers,args.nplayers))
+    plt.grid(which='major')
+    plt.savefig("figs/{}_{}_{}_{}".format(args.name,args.act,args.nlayers,args.nplayers))
     plt.show()
+        
+        
+        
         
