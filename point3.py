@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+""" Make the curve of the loss after 10 epochs with respect to sigma_b on the EOC """
+
 import argparse
 import numpy as np
 import torch
@@ -59,14 +61,18 @@ if __name__ == '__main__':
     model = LinearModel(n_in=28*28, n_out=10, n_layers=args.nlayers,
                         n_per_layers=args.nplayers, activation=activation)
         
-
+    # Liste of sigma on the abscisse
+    
     sigma_liste = np.linspace(0,args.sigb_max,args.n_sigb)
     
     loss_liste = []
     
     for sigb in sigma_liste:
         
+        # get sigma_w on the EOC and then train for 10 epochs
+        
         sigw = get_eoc_by_name(args.act, sigb, args.n)[1]
+        
         model.init_weights(sig_w=sigw, sig_b=sigb)
         logger = TensorBoardLogger("tb_logs/{}/".format(args.name), name="{}_{}_{}_{}".format(args.act,args.nlayers,args.nplayers,sigb))
         
@@ -81,6 +87,8 @@ if __name__ == '__main__':
         
         trainer.fit(model, train_loader, val_loader)
         
+        # compute the loss on the validatoin set after the training
+        
         with torch.no_grad():
             loss=torch.zeros(1).to(device)
             for x,y in val_loader:
@@ -88,6 +96,8 @@ if __name__ == '__main__':
             loss/=5000
             print('loss for sigma_b={}:'.format(sigb),loss)
             loss_liste.append(loss.cpu().numpy())
+    
+    # plot and save
     
     plt.figure(figsize=(5,5))
     plt.plot(sigma_liste,loss_liste)

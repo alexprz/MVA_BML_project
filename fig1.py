@@ -40,6 +40,8 @@ if __name__ == '__main__':
         raise ValueError(f'Unknown activation {args.act}')
 
     with torch.no_grad():
+        
+        # model with input of dimension 2 and output of dimension 1
 
         model = LinearModel(n_in=2, n_out=1, n_layers=args.nlayers,
                             n_per_layers=args.nplayers, activation=activation)
@@ -50,11 +52,11 @@ if __name__ == '__main__':
         model = model.to(device)
         model.eval()
 
-        #plot
+        # figure
 
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
-        # Make data.
+        # Make input grid
 
         X = torch.arange(-5, 5, 0.2).to(device)
         Y = torch.arange(-5, 5, 0.2).to(device)
@@ -71,6 +73,8 @@ if __name__ == '__main__':
         os.makedirs('figs/', exist_ok=True)
         # plt.title(args.name)
         plt.tight_layout()
+        
+        #save the figure
         plt.savefig(f'figs/{args.name}.pdf')
         plt.show()
 

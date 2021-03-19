@@ -1,4 +1,5 @@
 """Reproduce figure 5 of the paper."""
+
 import numpy as np
 import argparse
 import torch

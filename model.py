@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+""" Linear Deep Neural Network """
+
 import torch
 from torch import nn
 import pytorch_lightning as pl
