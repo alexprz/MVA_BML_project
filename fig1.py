@@ -1,4 +1,4 @@
-"""Reproduce the figure 1 of the paper with custom activation function.
+"""Reproduce figure 1 of the article with custom activation function.
 
 Are supported ReLU, Leaky ReLU and ELU.
 """
@@ -26,9 +26,6 @@ if __name__ == '__main__':
     parser.add_argument('--act', type=str, default='relu', help='Which activation to use')
     args = parser.parse_args()
 
-    # Set random state
-    torch.manual_seed(args.rs)
-
     # Select an activation function given its name
     if args.act == 'relu':
         activation = nn.ReLU()
@@ -48,7 +45,7 @@ if __name__ == '__main__':
                             n_per_layers=args.nplayers, activation=activation)
 
         # Customly init the model weights (chaotic, ordered, EOC)
-        model.init_weights(sig_w=args.sigw, sig_b=args.sigb)
+        model.init_weights(sig_w=args.sigw, sig_b=args.sigb, seed=args.rs)
 
         # Select available device
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')

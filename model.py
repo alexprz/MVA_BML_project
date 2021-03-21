@@ -23,7 +23,10 @@ class LinearModel(pl.LightningModule):
         )
         self.activation = activation
 
-    def init_weights(self, sig_w=1, sig_b=1):
+    def init_weights(self, sig_w=1, sig_b=1, seed=None):
+        if seed is not None:
+            torch.manual_seed(seed)
+
         for name, param in self.named_parameters():
             if name[-4:] == 'bias':
                 if sig_b ==0:
