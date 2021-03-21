@@ -4,6 +4,7 @@ checkpoints
 lightning_logs
 *.zip
 .DS_Store
+tb_logs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
