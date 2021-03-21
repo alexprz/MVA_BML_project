@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--nplayers', type=int, default=10, help='Number of neurons per layer')
     parser.add_argument('--rs', type=int, default=0, help='Random state')
     parser.add_argument('--sigb_max', type=float, default=0.1, help='maximum Sigma bias')
-    parser.add_argument('--n_sigb', type=int, default=21, help='number of points on the curve (number of different sigma_b considere')
+    parser.add_argument('--nsigb', type=int, default=21, help='number of points on the curve (number of different sigma_b considere')
     parser.add_argument('--name', type=str, default='Exp', help='experiment name')
     parser.add_argument('--ns', type=float, default='0', help='negative slope of Leaky ReLU')
     parser.add_argument('--act', type=str, default='elu', help='Which activation to use')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                         n_per_layers=args.nplayers, activation=activation)
 
     # List of sigma on the abscisse
-    sigma_list = np.linspace(0, args.sigb_max, args.n_sigb)
+    sigma_list = np.linspace(0, args.sigb_max, args.nsigb)
     loss_list = []
 
     for sigb in sigma_list:
