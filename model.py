@@ -4,9 +4,9 @@
 This is a fully connected linear neural network with custom number of layers,
 number of neurons per layer, activation, input and output dimensions.
 """
+import pytorch_lightning as pl
 import torch
 from torch import nn
-import pytorch_lightning as pl
 
 
 class LinearModel(pl.LightningModule):

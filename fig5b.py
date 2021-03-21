@@ -1,14 +1,15 @@
 """Reproduce figure 5 of the article with custom activation function."""
-import numpy as np
 import argparse
-from torch import nn
+
+import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from torchvision.datasets import MNIST
 from pytorch_lightning.loggers import TensorBoardLogger
+from torch import nn
+from torch.utils.data import DataLoader, random_split
+from torchvision import transforms
+from torchvision.datasets import MNIST
+
 from model import LinearModel
 
 

@@ -2,13 +2,14 @@
 
 Are supported ReLU, Leaky ReLU and ELU.
 """
-import numpy as np
 import argparse
 import os
-import torch
-from torch import nn
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
 from matplotlib import cm
+from torch import nn
 
 from model import LinearModel
 

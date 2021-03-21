@@ -1,16 +1,16 @@
 """Compute and plot the loss evolution as a function of sigma_b on the EOC."""
 import argparse
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from torchvision.datasets import MNIST
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from pytorch_lightning.loggers import TensorBoardLogger
-import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
-import matplotlib.pyplot as plt
+from pytorch_lightning.loggers import TensorBoardLogger
+from torch.utils.data import DataLoader, random_split
+from torchvision import transforms
+from torchvision.datasets import MNIST
 
 from eoc import get_eoc_by_name
 from model import LinearModel

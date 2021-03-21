@@ -3,6 +3,7 @@
 https://github.com/soufiane001/impact_of_init_and_activation/blob/master/eoc_curves.py
 """
 import argparse
+
 import numpy as np
 
 
